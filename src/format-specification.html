@@ -97,13 +97,14 @@
                 locations where sensors are worn might change, and the files should allow for proper
                 annotation of such sensor swapping. The format described in more detail below provides
                 naming conventions that should be followed for common metadata
-                types. <a href="#">(see sensor file and sensors file)</a></li>
+                types. (see <a href="data-metadata-files.html#sensor-data-files">sensor file</a> and 
+                <a href="data-metadata-files.html#sensors-metadata-files">sensors file</a>)</li>
               <li><strong>Descriptions of each participant.</strong> These metadata files about each participant would
                 include all special notes that might influence interpretation of the data for that particular
                 participant’s data. E.g, dominant arm, anthropometrics that affect measurement (tilt
                 angle of sensor on waist), and gait/motion inconsistencies due to musculoskeletal
                 deficiencies that can affect measurement (e.g. limp, Parkinsons, injury). These notes
-                should be easily understood by those not present during data collection. (<a href="#">see subject
+                should be easily understood by those not present during data collection. (<a href="data-metadata-files.html#subjects-metadata-files">see subject
                 data file</a>)</li>
               <li><strong>Timestamped labels of the activities performed, contextinformation,
                 and/or physiological states.</strong> The time synchronization will depend upon the nature of the data
@@ -112,7 +113,8 @@
                 may be sufficient. Examples of activities might be running, walking, and talking.
                 Examples of contexts might be location or properties of location (e.g., distance to a
                 park). Examples of physiological states might be heart rate or galvanic skin response.
-                (<a href="#">see annotation data file and ontology data file</a>)
+                (see <a href="data-metadata-files.html#annotation-data-files">annotation data file</a> and 
+                <a href="data-metadata-files.html#ontology-data-files">ontology data file</a>)
 <p class="comment topline"><sup>1</sup>The header/data line distinction is important, because in some cases scripts may concatenate CSV files. Header
                   files from multiple CSV files (e.g., for different hour of data from the same data source) could therefore end up in the
                   same data file. To allow software to strip these lines, the lines should begin with “HEADER_”.</p>
@@ -123,7 +125,7 @@
               <li><strong>Notes on any special considerations about the data.</strong> These notes include special
                 exceptions for particular subjects, descriptions of how various data sources were
                 synchronized, or any other information not already specified in other files that might help
-                others interpret the data. (<a href="#">See session data file</a>)</li>
+                others interpret the data. (<a href="data-metadata-files.html#sessions-metadata-file">See session data file</a>)</li>
             </ul>
           </li>
           <li><strong>Data are saved in a directory structure that segregates data by year, month, day, and

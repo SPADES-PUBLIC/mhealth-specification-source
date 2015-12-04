@@ -67,8 +67,8 @@
           P/M][h
           hmm].sensor.csv.gz . </strong>The [P/M][hhmm] encodes the offset from GMT, which provides data on daylight
           savings time mode (P = plus, M = Minus). SensorType is a unique identifier, and SensorID is a unique
-          ID for that sensor type (<a href="#">see Table 1</a>). DataType is a unique identifier for a specific data type the sensor
-          can generate (<a href="#">see Table 2</a>). For example, a sensor file could be:
+          ID for that sensor type (<a href="format-specification.html#supported-sensor-types">see supported sensor types</a>). DataType is a unique identifier for a specific data type the sensor
+          can generate (<a href="format-specification.html#supported-data-types">see supported data types</a>). For example, a sensor file could be:
           WocketAccelerationCalibrated.
           00066606D3AD.20090625150042001M0500.
           sensor.csv.gz.
@@ -76,7 +76,7 @@
           first line in the csv file will always be the header line, which describes the format of the numeric data. In
           most cases data use predefined
           headers in Table 2. For example, the first two lines in an
-        ActigraphGT3XPLUS sensor <a href="#">sensor.csv</a> <strong>file could look like this:</strong></p>
+        ActigraphGT3XPLUS sensor <strong><a href="#">sensor.csv</a></strong> (TODO: Add link) file could look like this:</p>
         <span class="codeqoute"><font color="#FF0000">HEADER_TIME_STAMP,X_ACCELERATION_METERS_PER_SECOND_SQUARED,Y_ACCELERATION_METERS_PER_SECOND_SQUARED,Z_ACCELERATION_METERS_PER_SECOND_SQUARED</font><br>
         <em>20140822
         11:18:18.060,0.778,4.671,4.159</em></span>
@@ -99,7 +99,7 @@
           strings). Events with no duration use the startTimeEvent and leave the EndTimeEvent blank. The first
           line in the csv file will always be the header line, which describes the format of the data. In most cases
           data use predefined
-          headers in Table 2. For example, the first two lines in the PhoneCalls <a href="#">event.csv</a> <strong>file could look like this:</strong></p>
+          headers in Table 2. For example, the first two lines in the PhoneCalls <strong><a href="#">event.csv</a></strong> (TODO: Add link) file could look like this:</p>
         <span class="codeqoute"><font color="#FF0000">HEADER_TIME_STAMP, START_TIME, END_TIME, CALL_INCOMMING_OR_OUTGOING, PHONE_NUMBER</font><br>
         <em>20140822
         11:18:18.060, 20140822
@@ -182,14 +182,14 @@
           </tbody>
         </table>
        
-        <p>The first two lines of an<a href="#"> annotation.csv file</a> <strong>could look like this:</strong></p>
+        <p>The first two lines of an <strong><a href="#">annotation.csv file</a></strong> (TODO: Add link) could look like this:</p>
         <span class="codeqoute"><font color="#FF0000">HEADER_TIME_STAMP,START_TIME,STOP_TIME,LABEL_NAME,LABEL_GUID</font><br>
         <em>20140822
         11:18:18.060,20140821
         11:08:00.060,20140821
         11:28:00.060,”Walking 3MPH”,ed9f3ad48c7b4542bcde9fdb4a7d1d0b</em></span>
         <p>More information about the assigned label can be gathered using the Ontology.[OntologyID].csv.gz file.
-          More information about the person who provided this annotation can be obtained from the <a href="#">Annotators.csv file</a>.</p>
+          More information about the person who provided this annotation can be obtained from the <strong><a href="#">Annotators.csv file</a></strong (TODO: Add link).</p>
         <h2 id="annotators-data-files">Annotators data file.</h2>
         <p>The Annotators data file contains additional information about any person who
           has saved annotations. The file is named: Annotators.csv. The file has one commadelimited
@@ -351,12 +351,12 @@
             </tr>
           <tr>
             <td>SENSOR_TYPE</td>
-            <td>The SensorType as found in <a href="#">Table 1</a>.</td>
+            <td>The SensorType as found in the list of <a href="format-specification.html#supported-sensor-types">supported sensor types</a>.</td>
             </tr>
           <tr>
             <td>SIDE_OF_BODY</td>
             <td>The unique identifier such as serial number, MAC address, or other devicespecific
-          number that uniquely identifies a piece of hardware (<a href="#">see Table 1</a>).</td>
+          number that uniquely identifies a piece of hardware (<a href="format-specification.html#supported-sensor-types">see supported sensor types</a>).</td>
             </tr>
           <tr>
             <td>MODEL</td>
@@ -380,7 +380,7 @@
           </tr>
           <tr>
             <td>TYPE_OF_DATA</td>
-            <td>The data type of the sensor described in this line (<a href="#">See Table 2</a>, column 1 for names). Can have
+            <td>The data type of the sensor described in this line (<a href="format-specification.html#supported-data-types">See supported data types</a>, column 1 for names). Can have
             multiple data types generated by a sensor I guess, especially for the phone. IMU sensors can
             also generate multiple data types.</td>
           </tr>
@@ -526,7 +526,7 @@ Unique ID for the subject, Note that it should be a unique ID generated by the s
             </tr>
           </tbody>
         </table>
-        <p>If certain information is not available, it is left blank. <span class="highlight">An example Subject.csv file can be found here: <a href="#">Subject.csv</a></span></p>
+        <p>If certain information is not available, it is left blank. <span class="highlight">An example Subject.csv file can be found here: <a href="#">Subject.csv</a></span>. (TODO: Add link)</p>
         <h2 id="sessions-metadata-file">Sessions data file.</h2>
         <p>The sessions description file contains information about the session that someone
           analyzing the data might need to know. This is stored in the [StudyName] directory. Recommended
@@ -608,7 +608,7 @@ Unique ID for the subject, Note that it should be a unique ID generated by the s
           ss][
           mmm][
           P/M][hhmm].csv.gz. <span class="highlight">An example
-          Sessions.csv file can be found here: <a href="#">Sessions.csv</a>.</span></p>
+          Sessions.csv file can be found here: <a href="#">Sessions.csv</a>  (TODO: Add link).</span></p>
         <h2 id="sensor-annotation-files">Sensor annotation file.</h2>
         <p>A special annotation file is used to store data about each sensor that cannot
           be stored in the Sensors.csv file because it could change throughout the study. This file is designated
