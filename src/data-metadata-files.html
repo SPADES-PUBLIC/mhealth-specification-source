@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>mHealth</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<!--[if lt IE 9]> <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script> <![endif]-->
+</head>
+<body>
+<div class="content-container">
+  <div class="left-pan">
+    <div class="col-x">
+      <ul>
+        <li class="awstoc opened"><a href="introduction.html">INTRODUCTION</a>
+          <ul>
+            <li class="awstoc leaf"><a href="introduction.html#description">Description</a></li>
+            <li class="awstoc leaf"><a href="introduction.html#example-data">Example Data</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="format-specification.html">FORMAT SPECIFICATION</a>
+          <ul>
+            <li class="awstoc leaf"><a href="format-specification.html#format-design-decisions">Format Design Decisions &amp; Specifications</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#supported-sensor-types">Supported Sensor Types</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#supported-data-types">Supported Data Types</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#directory-structure">Directory Structure</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened active"><a href="data-metadata-files.html">DATA AND METADATA FILES</a>
+          <ul>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensor-data-files">Sensor Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#event-data-files">Event Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#feature-data-files">Feature Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#annotation-data-files">Annotation Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#annotators-data-files">Annotators Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#ontology-data-files">Ontology Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensors-metadata-files">Sensors (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#subjects-metadata-files">Subjects (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sessions-metadata-file">Sessions (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensor-annotation-files">Sensor Annotation Files</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="appendix.html">APPENDIX</a>
+          <ul>
+            <li class="awstoc leaf"><a href="appendix.html#gzip-usage-decision">GZIP Usage Decision</a></li>
+            <li class="awstoc leaf"><a href="appendix.html#efficient-use-of-disk-space">Efficient Use of Disk Space</a></li>
+            <li class="awstoc leaf"><a href="appendix.html#file-i-o">File I/O</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="right-pan">
+    <div class="main">
+      <div class="col-xx">
+        <h1>Data and metadata file descriptions</h1>
+        <h2 id="sensor-data-files">Sensor data file.</h2>
+        <p>Sensor data are always stored hourly in gzipped ASCII csv files files with this
+          filename structure:</p>
+        <p><strong>[SensorTypeDataTypeVersionInfo].[
+          SensorID].[YYYY][
+          MM][
+          DD][
+          hh][
+          mm][
+          ss][
+          mmm][
+          P/M][h
+          hmm].sensor.csv.gz . </strong>The [P/M][hhmm] encodes the offset from GMT, which provides data on daylight
+          savings time mode (P = plus, M = Minus). SensorType is a unique identifier, and SensorID is a unique
+          ID for that sensor type (<a href="#">see Table 1</a>). DataType is a unique identifier for a specific data type the sensor
+          can generate (<a href="#">see Table 2</a>). For example, a sensor file could be:
+          WocketAccelerationCalibrated.
+          00066606D3AD.20090625150042001M0500.
+          sensor.csv.gz.
+          Within the csv file, the data always have this format: TimeStamp, CommaDelimitedNumericData. The
+          first line in the csv file will always be the header line, which describes the format of the numeric data. In
+          most cases data use predefined
+          headers in Table 2. For example, the first two lines in an
+        ActigraphGT3XPLUS sensor <a href="#">sensor.csv</a> <strong>file could look like this:</strong></p>
+        <span class="codeqoute"><font color="#FF0000">HEADER_TIME_STAMP,X_ACCELERATION_METERS_PER_SECOND_SQUARED,Y_ACCELERATION_METERS_PER_SECOND_SQUARED,Z_ACCELERATION_METERS_PER_SECOND_SQUARED</font><br>
+        <em>20140822
+        11:18:18.060,0.778,4.671,4.159</em></span>
+        <h2 id="event-data-files">Event data file.</h2>
+        <p>Events with duration can be stored hourly in gzipped ASCII csv files with this filename
+          structure:</p>
+        <p><strong>[EventType].[EventID].[YYYY][
+          MM][
+          DD][
+          hh][
+          mm][
+          ss][
+          mmm][
+          P/M][hhmm].event.csv .</strong> The
+          EventType and EventID together form a unique identifier. A sample filename that might store phone call
+          log data could be: PhoneCalls.00066606D3AD.20090625150042001M0500.
+          event.csv. In the
+          example the EventID could be the phone ID. Event data is stored in this structure:
+          TimeStampDataWritten, StartTimeEvent, EndTimeEvent, Detail (Arbitrary string or commaseparated
+          strings). Events with no duration use the startTimeEvent and leave the EndTimeEvent blank. The first
+          line in the csv file will always be the header line, which describes the format of the data. In most cases
+          data use predefined
+          headers in Table 2. For example, the first two lines in the PhoneCalls <a href="#">event.csv</a> <strong>file could look like this:</strong></p>
+        <span class="codeqoute"><font color="#FF0000">HEADER_TIME_STAMP, START_TIME, END_TIME, CALL_INCOMMING_OR_OUTGOING, PHONE_NUMBER</font><br>
+        <em>20140822
+        11:18:18.060, 20140822
+        11:18:18.060, 20140822
+        11:19:00.011,Out,
+        6171111111</em></span>
+        <h2 id="feature-data-files">Feature data file.</h2>
+        <p>The feature data file is identical in format to the event data file, but named with
+          feature.csv instead of event.csv and with a descriptive AlgorithmType. Typically the feature data file will
+          be stored in the metadata directories and will include processed data that can be recomputed from the
+          raw data. For entries that do not require an END_TIME, that entry is just left blank. <strong>The structure of the
+          filename is:</strong></p>
+        <span class="codeqoute"><font color="#FF0000">[AlgorithmType].[AlgorithmID].[YYYY][
+        MM][
+        DD][
+        hh][
+        mm][
+        ss][
+        mmm][
+        P/M][hhmm].</font><em>feature.csv.gz</em></span>
+        <h2 id="annotation-data-files">Annotation data file.</h2>
+        <p>Annotated activity labels and annotation definitions are encoded in a human and
+          computer readable CSV file. The annotation data file stores information about events with duration,
+          were it is helpful to have additional metadata about the event available (e.g., annotation definitions). <strong>The filename format is:</strong></p>
+        <span class="codeqoute"><font color="#FF0000">[OntologyID].[AnnotatorID].[YYYY][
+        MM][
+        DD][
+        hh][
+        mm][
+        ss][
+        mmm][
+        P/M][hhmm].</font><em>annotation.csv</em></span>
+        <p>A sample filename is:PhysicalActivities.jpn1009.20090625150042001M0500.
+          annotation.csv,
+          where “jpn1009” is the unique identifier of the person who generated the annotations (it could
+          alternatively be the name of an algorithm that generated annotations). Annotation data are stored in this
+          structure: TimeStamp,StartTime,StopTime,LABEL_NAME,Label_GUID, SPECIFIC_SENSOR_ID[Other
+          optional information]. <strong>The following properties may be defined in the file:</strong></p>
+          <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody><tr>
+            <th width="21%" valign="top" align="left">HEADER NAME</th>
+            <th width="50%" valign="top" align="left">DESCRIPTION</th>
+            </tr>
+          <tr>
+            <td>HEADER_TIME_STAMP</td>
+            <td>(required)</td>
+            </tr>
+          <tr>
+            <td>START_TIME</td>
+            <td>(required)</td>
+            </tr>
+          <tr>
+            <td>STOP_TIME</td>
+            <td>(required)</td>
+            </tr>
+          <tr>
+            <td>LABEL_NAME</td>
+            <td>Required short name of the label to be used in the visualization software (e.g.,              “Running” or “Doing homework”). This name should correspond to the name found in the              Ontology.[OntologyID].csv file for the LABEL_GUID.</td>
+          </tr>
+          <tr>
+            <td>LABEL_ID</td>
+            <td>Optional (but recommended) unique global identifier attached to the label. This is              pulled from the Ontology.[OntologyID].csv file. [Note about grabbing this from some sort of              common dictionary.]</td>
+          </tr>
+          <tr>
+            <td>RATING_TIME_STAMP</td>
+            <td>Optional timestamp indicator of when the rating was given by              annotator.</td>
+          </tr>
+          <tr>
+            <td>RATING_INTENSITY</td>
+            <td>Optional label intensity value. It should be one of the values for this              LABEL_GUID that can be found in the Ontology.[OntologyID].csv file.</td>
+          </tr>
+          <tr>
+            <td>RATING_CONFIDENCE</td>
+            <td>Optional confidence value (0 to 1) of the rating assigned by annotator.</td>
+          </tr>
+          <tr>
+            <td>SPECIFIC_SENSOR_ID</td>
+            <td>Optional sensor id if the annotation is related to a specific sensor.</td>
+          </tr>
+          </tbody>
+        </table>
+       
+        <p>The first two lines of an<a href="#"> annotation.csv file</a> <strong>could look like this:</strong></p>
+        <span class="codeqoute"><font color="#FF0000">HEADER_TIME_STAMP,START_TIME,STOP_TIME,LABEL_NAME,LABEL_GUID</font><br>
+        <em>20140822
+        11:18:18.060,20140821
+        11:08:00.060,20140821
+        11:28:00.060,”Walking 3MPH”,ed9f3ad48c7b4542bcde9fdb4a7d1d0b</em></span>
+        <p>More information about the assigned label can be gathered using the Ontology.[OntologyID].csv.gz file.
+          More information about the person who provided this annotation can be obtained from the <a href="#">Annotators.csv file</a>.</p>
+        <h2 id="annotators-data-files">Annotators data file.</h2>
+        <p>The Annotators data file contains additional information about any person who
+          has saved annotations. The file is named: Annotators.csv. The file has one commadelimited
+          line per annotator, <strong>with the following header information:</strong></p>
+          
+          <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody><tr>
+            <th width="21%" valign="top" align="left">HEADER NAME</th>
+            <th width="50%" valign="top" align="left">DESCRIPTION</th>
+            <th width="29%" valign="top" align="left">EXAMPLE</th>
+            </tr>
+          <tr>
+            <td>ANNOTATOR_ID</td>
+            <td>A unique string that corresponds to the AnnotatorID used in the annotation file names</td>
+            <td>(e.g., a GUID or “DoeJohn5”)</td>
+            </tr>
+          <tr>
+            <td>ANNOTATOR_NAME</td>
+            <td> A string name of the annotator</td>
+            <td>(e.g., “John Doe”)</td>
+            </tr>
+          <tr>
+            <td>ANNOTATOR_EMAIL</td>
+            <td>A string email of the annotator</td>
+            <td>(e.g., “jdoe@university.edu”)</td>
+            </tr>
+        </tbody></table>
+        <ul>
+          <li>NOTES: A string with notes about the annotator that might be important if interpreting the
+            dataset.</li>
+        </ul>
+        <h2 id="ontology-data-files">Ontology data file.</h2>
+        <p>The Ontology file contains the definitions of and relationships between annotation
+          labels and categories for a particular OntologyID. Labels are grouped into categories. Within each
+          category, labels may be mutually exclusive. Category and label GUIDs are included to permit tracking
+          of change histories and synchronizing definitions between databases when definitions do not change.
+          The file is named as: Ontology.[OntologyID].csv. It uses a KEY, VALUE(s) structure on each line, <strong>with
+          the following key/value(s) allowed:</strong></p>
+          <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody><tr>
+            <th width="21%" valign="top" align="left">HEADER NAME</th>
+            <th width="17%" valign="top" align="left">TYPE</th>
+            <th width="62%" valign="top" align="left">DESCRIPTION</th>
+            </tr>
+          <tr>
+            <td>ONTOLOGY_NAME</td>
+            <td>String</td>
+            <td>A short name for the ontology (e.g., to be used in the visualization software). An example is              “Exercise Activities” or “Activity Study Activities”</td>
+            </tr>
+          <tr>
+            <td>DESCRIPTION</td>
+            <td>String</td>
+            <td>A clear, concise description of the ontology.</td>
+            </tr>
+          <tr>
+            <td>DATE_CREATED</td>
+            <td>Timestamp</td>
+            <td>Timestamp when this annotation definition was created. Use the timestamp convention.</td>
+            </tr>
+          <tr>
+            <td>LAST_MODIFIED</td>
+            <td>Timestamp</td>
+            <td>Timestamp when this annotation was last modified. Use the timestamp convention.</td>
+          </tr>
+          <tr>
+            <td>METHOD</td>
+            <td>String</td>
+            <td>[String, Choice of 4 options] Indication of how the annotation was done. <strong>Options are:</strong>
+              <ul>
+              <li>direct_observation_paper: start/stop times were written down on paper as activities were
+                performed</li>
+              <li>direct_observation_mobile: start/stop times were entered directly into a computer using
+                custom annotation software in realtime</li>
+              <li>video: annotations were coded from a video recording</li>
+              <li>audio: annotations were coded from an audio recording</li>
+            </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>NOTES</td>
+            <td>String</td>
+            <td>Any special notes should be included here. In particular, a full description of how the intensity              values for activities are supposed to be determined, if those are used.</td>
+          </tr>
+          <tr>
+            <td>CATEGORY</td>
+            <td>String </td>
+            <td>String name, Category GUID, String Description, Exclusivity [“True” or “False”],              Defines a category, which includes a set of labels and properties on those labels. 
+            <ul>
+              <li>Name: A short name of the category (e.g. “Postures”)</li>
+              <li>GUID: A unique global identifier for this category</li>
+              <li>Description: A clear and concise description of the category</li>
+              <li>Exclusivity: The category is mutually exclusive (true) or allows multiple labels (false)</li>
+            </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>LABEL</td>
+            <td>String </td>
+            <td>String name, Label GUID, String Description, Commaseparated              String of IntensityOptions The label is used to annotate data. Labels could be activities, states, contexts, or output from              algorithms.
+            <ul>
+              <li>Name: A short name for the label (e.g., “Sitting”, “Reading”, “Walking3MPH”)</li>
+              <li>GUID: A unique global identifier for this label</li>
+              <li>Description: A clear description of what the labels means. This should provide enough
+                detail so that someone unfamiliar with the data can understand the subtle distinctions
+                between categories that are often important when interpreting the data.</li>
+              <li>IntensityOptions: A commaseparated
+                list of strings, indicating possible intensity values
+                for this label (e.g., “3mph, 4mph, 5mph”, “hard, moderate, low”, “1, 2, 3, 4, 5”)</li>
+            </ul>
+             </td>
+          </tr>
+          </tbody>
+        </table>
+        <p>Although ontologies are experimentspecific,
+          researchers are encouraged to reuse the annotation
+          schema of others whenever possible, in order to facilitate data sharing. Examples from prior
+          experiments would be featured on the data sharing website. An example AnnotationData file can be
+          found here: annotation.example.csv and the corresponding example ontology file can be found here:
+          ontology.example.csv</p>
+        <p>It’s also recommended following sensor ontology information into the ontology data file if needed. The
+          CATEGORY and LABELS defined in the <strong>file are:</strong></p>
+          <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody><tr>
+            <th width="21%" valign="top" align="left">HEADER NAME</th>
+            <th width="50%" valign="top" align="left">DESCRIPTION</th>
+            </tr>
+          <tr>
+            <td>FIRMWARE</td>
+            <td>&nbsp;</td>
+            </tr>
+          <tr>
+            <td>SIDE_OF_BODY</td>
+            <td>The side of the body on which the sensor was worn (left, right, or center).</td>
+            </tr>
+          <tr>
+            <td>LOCATION</td>
+            <td>Preferred/default position of sensor on the body from the following list: hand, wrist, forearm,
+            bicep, upper_arm, shoulder, upper_chest, lower_chest, hip, waist, front_pocket, rear_pocket,
+            ear, back_head, top_head, small_back, upper_back, lower_back, forehead, thigh, above_knee,
+            below_knee,calf,above_ankle, top_foot, below_foot, side_ankle, in_bag, in_purse, in_backpack,
+            in_briefcase, in_saddlebag, unknown.</td>
+            </tr>
+          <tr>
+            <td>BODY_ATTACHMENT</td>
+            <td>How the monitor is adhered to the body (tape, belt, clipped_on_clothing, in_pouch)</td>
+          </tr>
+          </tbody>
+        </table>
+        <h2 id="sensors-metadata-files">Sensors data file.</h2>
+        <p>Sensor configuration information is encoded in a human and computer readable
+          Sensors.csv file. This is stored in the [StudyName] directory. Each line in the file contains information
+          about one sensor used in the study, where sensors are uniquely identified using the SensorType and
+          SensorID values. In cases where a single physical sensor saves two different types of data streams,
+          such as accelerometer data and heart rate, the sensor would have two entries (i.e., two lines) in the file. <strong>The following header information is required:</strong></p>
+          <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody><tr>
+            <th width="21%" valign="top" align="left">HEADER NAME</th>
+            <th width="50%" valign="top" align="left">DESCRIPTION</th>
+            </tr>
+          <tr>
+            <td>SENSOR_TYPE</td>
+            <td>The SensorType as found in <a href="#">Table 1</a>.</td>
+            </tr>
+          <tr>
+            <td>SIDE_OF_BODY</td>
+            <td>The unique identifier such as serial number, MAC address, or other devicespecific
+          number that uniquely identifies a piece of hardware (<a href="#">see Table 1</a>).</td>
+            </tr>
+          <tr>
+            <td>MODEL</td>
+            <td>The manufacturer’s model designation for the sensor.</td>
+            </tr>
+          <tr>
+            <td>VENDOR</td>
+            <td>The vendor of the sensor.</td>
+          </tr>
+          <tr>
+            <td>DESCRIPTION</td>
+            <td>A description of the sensor and what it does.</td>
+          </tr>
+          <tr>
+            <td>NICKNAME</td>
+            <td>A short nickname for the sensor (e.g., to be displayed in visualization software).</td>
+          </tr>
+          <tr>
+            <td>NOTES</td>
+            <td>Any special notes that another research might want/need to know about this particular sensor.</td>
+          </tr>
+          <tr>
+            <td>TYPE_OF_DATA</td>
+            <td>The data type of the sensor described in this line (<a href="#">See Table 2</a>, column 1 for names). Can have
+            multiple data types generated by a sensor I guess, especially for the phone. IMU sensors can
+            also generate multiple data types.</td>
+          </tr>
+          </tbody>
+        </table>
+        <h5>Optional header information is as follows:</h5>
+        <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody>
+            <tr>
+              <th width="21%" valign="top" align="left">HEADER NAME</th>
+              <th width="50%" valign="top" align="left">DESCRIPTION</th>
+            </tr>
+            <tr>
+              <td>SAMPLING_RATE_HZ</td>
+              <td>The expected sampling rate in samples/second. For some type of emerging sensors, “variable”
+            is a legitimate value, meaning that the sampling rate may change throughout the dataset, either
+            intentionally or because of the design of the hardware. “unknown” is also a legitimate value.</td>
+            </tr>
+            <tr>
+              <td>NUMBER_OF_AXES</td>
+              <td>The number of axes in each sample.</td>
+            </tr>
+            <tr>
+              <td>RANGE_MINIMUM</td>
+              <td>The minimum value the sensor will output in the current configuration.</td>
+            </tr>
+            <tr>
+              <td>RANGE_MAXIMUM</td>
+              <td>The maximum value the sensor will output in the current configuration.</td>
+            </tr>
+            <tr>
+              <td>G_RANGE</td>
+              <td>The +/range
+            in g’s measured by an accelerometer sensor. For some type of emerging
+            sensors, “variable” is a legitimate value.</td>
+            </tr>
+            <tr>
+              <td>CALIBRATION</td>
+              <td>Calibration information that may be used by some algorithms. For an accelerometer, this might
+            be x1g (output of xaxis of accelerometer when oriented towards gravity), x1ng (output of xaxis
+            of accelerometer when oriented away from gravity), y1g, y1ng, z1g, z1ng, xstd (the mean
+            standard deviation of output values when the sensor is set on a solid, nonmoving
+            surface), ystd, and zstd.</td>
+            </tr>
+            <tr>
+              <td>BITS</td>
+              <td>The number of bits of resolution for each reading. For accelerometers, this is typically 10 or 12
+            or 24.</td>
+            </tr>
+            <tr>
+              <td>EPOCH_SECONDS</td>
+              <td>The length of the epoch, in seconds.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p><span class="highlight">Examples of descriptions for several common sensor types and output types are included in the sample
+          sensors.csv file, found here: <a href="#">sensors.csv</a>.</span></p>
+        <h2 id="subjects-metadata-files">Subject data file.</h2>
+        <p>Subject information that will not change across the study is recorded in a human and
+          computer readable CSV file. Whenever possible the data should be stored in universallyaccepted
+          formats such as SI units (e.g., kg vs. pounds, kph vs. mph). This subject information is stored in the
+          [ParticipantID] directory. The file uses the CSV format and stores <strong>the following required information with
+          these headers:</strong></p>
+        <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody>
+            <tr>
+              <th width="21%" valign="top" align="left">HEADER NAME</th>
+              <th width="50%" valign="top" align="left">DESCRIPTION</th>
+            </tr>
+            <tr>
+              <td>SUBJECT_ID</td>
+              <td>
+Unique ID for the subject, Note that it should be a unique ID generated by the system when
+            participant enrolls. IMEI of a person’s phone should not be used as the SUBJECT_ID, which
+            would cause a problem should a person switch phones or maintain more than one mobile
+            phone.</td>
+            </tr>
+            <tr>
+              <td>START_AGE</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>SEX</td>
+              <td>Male or Female</td>
+            </tr>
+          </tbody>
+        </table>
+        <h5>The following information should also be included when available:</h5>
+        <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody>
+            <tr>
+              <th width="21%" valign="top" align="left">HEADER NAME</th>
+              <th width="50%" valign="top" align="left">DESCRIPTION</th>
+            </tr>
+            <tr>
+              <td>SPECIAL_NOTES</td>
+              <td>Any notes about the subject that might be important when using the data.</td>
+            </tr>
+            <tr>
+              <td>START_WEIGHT_KILOGRAMS</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>START_HEIGHT_METERS</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>DOMINANT_HAND</td>
+              <td>Left or Right or Unknown</td>
+            </tr>
+            <tr>
+              <td>DOMINANT_LEG</td>
+              <td>Left or Right or Unknown</td>
+            </tr>
+            <tr>
+              <td>RESTING_HEART_RATE</td>
+              <td>Resting heart rate</td>
+            </tr>
+            <tr>
+              <td>MAXIMAL_HEART_RATE</td>
+              <td>Maximal heart rate</td>
+            </tr>
+            <tr>
+              <td>SHOE_TYPE</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>PHONE_LOCATION</td>
+              <td>Where a mobile phone is normally carried</td>
+            </tr>
+            <tr>
+              <td>SERVICE_PROVIDER</td>
+              <td>Mobile phone service provider</td>
+            </tr>
+            <tr>
+              <td>MOBILE_PHONE_MODEL</td>
+              <td>Mobile phone model</td>
+            </tr>
+            <tr>
+              <td>SELF_REPORTED_FITNESS</td>
+              <td>Results of the Stanford Brief Activity Survey, a test that can be easily administered in two
+            minutes.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>If certain information is not available, it is left blank. <span class="highlight">An example Subject.csv file can be found here: <a href="#">Subject.csv</a></span></p>
+        <h2 id="sessions-metadata-file">Sessions data file.</h2>
+        <p>The sessions description file contains information about the session that someone
+          analyzing the data might need to know. This is stored in the [StudyName] directory. Recommended
+          information to include is: dataset name, dataset purpose, information about the setup, and any
+          information someone using the dataset would need to be aware of. The file uses the CSV format and
+          stores the following information for each session, <strong>with these headers:</strong></p>
+          <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody>
+            <tr>
+              <th width="21%" valign="top" align="left">HEADER NAME</th>
+              <th width="50%" valign="top" align="left">DESCRIPTION</th>
+            </tr>
+            <tr>
+              <td>SESSION_ID</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>DATASET_NAME</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>SESSION_NAME</td>
+              <td>This should not include underscores or spaces because it is used in the file structure</td>
+            </tr>
+            <tr>
+              <td>SESSION_START_DATE_TIME</td>
+              <td>Date when data collection for all participants started for this session</td>
+            </tr>
+            <tr>
+              <td>SESSION_END_DATE_TIME</td>
+              <td>Date when data collection for all participants ended for this session</td>
+            </tr>
+            <tr>
+              <td>SESSION_DESIGN</td>
+              <td>An overview of the session design</td>
+            </tr>
+            <tr>
+              <td>SESSION_ISSUES</td>
+              <td>Known issues about the design of the session</td>
+            </tr>
+            <tr>
+              <td>SENSOR_PLACEMENT</td>
+              <td>Detailed information about how sensors were placed on a person during this particular session.
+            There should be enough information so that specific details can be reproduced.</td>
+            </tr>
+            <tr>
+              <td>REFERENCE</td>
+              <td>Reference to cite if using the data</td>
+            </tr>
+            <tr>
+              <td>ACKNOWLEDGEMENTS</td>
+              <td>Acknowledgements indicating who collected the data and supported that data collection in what
+            way</td>
+            </tr>
+            <tr>
+              <td>CONTACT_NAME</td>
+              <td>Contact name for more information</td>
+            </tr>
+            <tr>
+              <td>CONTACT_EMAIL</td>
+              <td>Contact email for more information</td>
+            </tr>
+            <tr>
+              <td>WEBSITE</td>
+              <td>Website for more information</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Storing the session’s start and end timestamps allows for human and computer to easily find a
+          participant’s session data in the participant’s “ Sensors ” directory. These data can then be exported
+          using an algorithm that understands the simple structure of the data storage directory and how to parse
+          this sessions.csv file. This algorithm should produce a gzipped file. Exporting data in this way should
+          generate data in the participant’s root subdirectory (i.e. [StudyName]/[ParticipantID]) of the name
+          [MetaDataTaskName].[YYYY][
+          MM][
+          DD][
+          hh][
+          mm][
+          ss][
+          mmm][
+          P/M][hhmm].csv.gz. <span class="highlight">An example
+          Sessions.csv file can be found here: <a href="#">Sessions.csv</a>.</span></p>
+        <h2 id="sensor-annotation-files">Sensor annotation file.</h2>
+        <p>A special annotation file is used to store data about each sensor that cannot
+          be stored in the Sensors.csv file because it could change throughout the study. This file is designated
+          with this filename: [SensorType].[SensorID].annotation.csv. It is stored in The [ParticipantID] directory.
+          This annotation file uses the Ontology.Sensor.csv. It should have the same format as annotation data
+          file.<strong> An example could be</strong>,</p>
+        <span class="codeqoute"><font color="#FF0000">HEADER_TIME_STAMP, START_TIME, STOP_TIME, FIRMWARE, SIDE_OF_BODY, LOCATION,
+        BODY_ATTACHMENT</font><br>
+        <em>20140822
+        11:18:18.060,20140821
+        11:08:00.060,20140821
+        11:28:00.060,1.1.0,Left,Wrist,Tape</em></span> </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

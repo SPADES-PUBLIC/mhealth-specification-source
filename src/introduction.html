@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>mHealth</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<!--[if lt IE 9]> <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script> <![endif]-->
+</head>
+<body>
+<div class="content-container">
+  <div class="left-pan">
+    <div class="col-x">
+      <ul>
+        <li class="awstoc opened active"><a href="introduction.html">INTRODUCTION</a>
+          <ul>
+            <li class="awstoc leaf"><a href="introduction.html#description">Description</a></li>
+            <li class="awstoc leaf"><a href="introduction.html#example-data">Example Data</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="format-specification.html">FORMAT SPECIFICATION</a>
+          <ul>
+            <li class="awstoc leaf"><a href="format-specification.html#format-design-decisions">Format Design Decisions &amp; Specifications</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#supported-sensor-types">Supported Sensor Types</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#supported-data-types">Supported Data Types</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#directory-structure">Directory Structure</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="data-metadata-files.html">DATA AND METADATA FILES</a>
+          <ul>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensor-data-files">Sensor Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#event-data-files">Event Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#feature-data-files">Feature Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#annotation-data-files">Annotation Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#annotators-data-files">Annotators Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#ontology-data-files">Ontology Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensors-metadata-files">Sensors (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#subjects-metadata-files">Subjects (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sessions-metadata-file">Sessions (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensor-annotation-files">Sensor Annotation Files</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="appendix.html">APPENDIX</a>
+          <ul>
+            <li class="awstoc leaf"><a href="appendix.html#gzip-usage-decision">GZIP Usage Decision</a></li>
+            <li class="awstoc leaf"><a href="appendix.html#efficient-use-of-disk-space">Efficient Use of Disk Space</a></li>
+            <li class="awstoc leaf"><a href="appendix.html#file-i-o">File I/O</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="right-pan">
+    <div class="main">
+      <div class="col-xx">
+        <h1>Introduction</h1>
+        <h2 id="description">mHealth Format for Storing Annotated Physical Activity Data</h2>
+        <p>This document describes a data format (referred to as “mHealth Format”) for storing annotated physical
+          activity data, in particular when the data consists of raw accelerometer signals and other low and high
+          sampling rate sensors. Annotated data are data that are labeled with start/end times for various
+          activities, states, or contexts.</p>
+        <h5 class="gray">The mHealth Format is intended to be:</h5>
+        <ul>
+          <li>compact,</li>
+          <li>flexible/extensible so that new data types can be added as needed,</li>
+          <li>easy to understand,</li>
+          <li>easy to manage and share for research purposes,</li>
+          <li>easy to break into subsets of data or recombine (e.g., by day or hour),</li>
+          <li>conducive to storing data collected in both short lab sessions and over many days, weeks, or
+            months,</li>
+          <li>decipherable by people by visual inspection without special software (for lowsampling
+            rate data),</li>
+          <li>machine interpretable,</li>
+          <li>conducive to use for data saving on mobile phones,</li>
+          <li>not impacted by changes in daylight savings time or changes of clocks on mobile devices, so
+            there is not a fear of loss of data, and</li>
+          <li>appropriate for storage on a distributed file system to enhance data accessibility.</li>
+        </ul>
+        <p>The format is sufficiently extensible to handle a variety of new sensors that may permit multiday
+          continuous data collection, variable sampling rates, variable sensitivity levels, multimodal
+          data collection, and acquisition of other useful information about data quality.</p>
+        <p>This format is intended to be used in projects where data are collected on people measuring their
+          movement, behaviors, physiological state, and/or context. These data can be collected from multiple
+          sensors and sensor types, including commercial wearable monitors, custom wearable monitors, and
+          phones.</p>
+        <p>The goal of this dataset format is to permit easy sharing of data for research purposes. For this reason,
+          data are stored as simply as possible, but with all information that might be needed for researchers who
+          did not collect the data themselves to use it in new projects. Moreover, we want as much of the dataset
+          to be both human and machine interpretable, so that software can be built to easily manipulate and
+          visualize the data. To make this possible, in addition to raw data collected from sensors, the dataset
+          must contain wellorganized metainformation about the data. The metainformation
+          should include information such as sensor operating characteristics, but also information about how the sensors were
+          worn on the body or placed in the environment. Typically while the sensors are being worn,
+          observational data are also collected, which may include information about the type, intensity, duration,
+          and/or location of physical activity, as well as the contexts in which the data are being collected.</p>
+        <p>The format is expected to be used in studies where data are collected for many days or weeks,
+          ultimately from hundreds or thousands of participants in single studies. Therefore, it is important that
+          the data not only be in a format that is easy to understand but also in a format that allows efficient
+          storage in a distributed file system. Further, the format should permit efficient manipulation of data
+          using distributed computational operations (e.g., computing metadata from the raw data).</p>
+        <p>This data format and the tools that use it are intended to simplify the sharing of such data with other
+          researchers. When datasets are adequately formatted for reuse, researchers should be able to easily
+          and automatically load large datasets into programs that perform batch analyses and make inferences
+          about the activities performed. Visualization software should make it easier to inspect large datasets.</p>
+        <h2 id="example-data">Example Data</h2>
+        <p>Researchers may want to browse an example dataset collected from one individual before reading
+          further, to get a sense for the files and data structure being proposed: [TO DO add link].</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

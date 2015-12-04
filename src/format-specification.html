@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>mHealth</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<!--[if lt IE 9]> <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script> <![endif]-->
+</head>
+<body>
+<div class="content-container">
+  <div class="left-pan">
+    <div class="col-x">
+      <ul>
+        <li class="awstoc opened"><a href="introduction.html">INTRODUCTION</a>
+          <ul>
+            <li class="awstoc leaf"><a href="introduction.html#description">Description</a></li>
+            <li class="awstoc leaf"><a href="introduction.html#example-data">Example Data</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened active"><a href="format-specification.html">FORMAT SPECIFICATION</a>
+          <ul>
+            <li class="awstoc leaf"><a href="format-specification.html#format-design-decisions">Format Design Decisions &amp; Specifications</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#supported-sensor-types">Supported Sensor Types</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#supported-data-types">Supported Data Types</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#directory-structure">Directory Structure</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="data-metadata-files.html">DATA AND METADATA FILES</a>
+          <ul>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensor-data-files">Sensor Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#event-data-files">Event Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#feature-data-files">Feature Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#annotation-data-files">Annotation Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#annotators-data-files">Annotators Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#ontology-data-files">Ontology Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensors-metadata-files">Sensors (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#subjects-metadata-files">Subjects (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sessions-metadata-file">Sessions (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensor-annotation-files">Sensor Annotation Files</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="appendix.html">APPENDIX</a>
+          <ul>
+            <li class="awstoc leaf"><a href="appendix.html#gzip-usage-decision">GZIP Usage Decision</a></li>
+            <li class="awstoc leaf"><a href="appendix.html#efficient-use-of-disk-space">Efficient Use of Disk Space</a></li>
+            <li class="awstoc leaf"><a href="appendix.html#file-i-o">File I/O</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="right-pan">
+    <div class="main">
+      <div class="col-xx">
+        <h1 id="format-design-decisions">Format Specification</h1>
+        <h2>Format design decisions and explanation</h2>
+        <h5 class="gray">To meet the needs mentioned above, the format has the following characteristics.</h5>
+        <ul>
+          <li><strong>All sensor data (high and low sampling rate), including annotation and metadata, are stored in a computer in a human readable, commadelimited
+            text (ASCII) format.</strong> The CSV (commaseparated values) text file format is human readable (via common spreadsheet and
+            data analysis programs), is easily parsed by computer, and can be edited by hand if necessary. CSV files are particularly wellsuited
+            for analysis by high throughput analytical platforms (such as MapReduce and Spark), and they can be easily imported into database systems (such as
+            MySQL), statistical software (such as Matlab and R) and big data frameworks (such as Apache Hadoop) that are important for managing massive datasets (the type of data that will soon be generated from mobile devices).</li>
+          <li><strong>All CSV files are compressed (using the commonly available and efficient gzip
+            compression library) to preserve disk space.</strong> The downside to storing data in the CSV
+            (commaseparated values) text format is that high sampling rate data may require substantial
+            disk space, especially when the format of the data is known a priori and formatspecific,
+            binary storage strategies might be used. Disk space concerns are addressed by gzipping all CSV files
+            as they grow in size (<a href="appendix.html#gzip-usage-decision">see Appendix: Gzip Compression for a justification</a>). The computational
+            overhead of gzipping CSV files with highresolution data are acceptable, even on mobile
+            phones, when the files are limited to about an hour of high sampling rate data per file (e.g., from
+            12 seconds of compression time per file).</li>
+          <li><strong>All sensor data, regardless of original data format, is converted into the CSV format and
+            synchronized with other sensor data.</strong> This conversion requires special software for each
+            sensor type. As long as the native format used by the sensor to save the data is known,
+            converters can be easily written to create timestamped CSV files for the mHealth format. For
+            example, converters are necessary (and need to be provided) to read and convert data from
+            common devices such as the Actigraph and ActivPAL into the format described here. The
+            converters will generate one file per sensor, with timestamps that allow sensor synchronization
+            across files.</li>
+          <li><strong>All CSV files begin with a header line, labeling each column of data, to ensure the file is
+            easily human interpretable </strong>. The first line in each CSV file is the commadelimited
+            row containing keys for each column (e.g., HEADER_TIME_STAMP, AUC, ACTIVITY_COUNT,
+            START_DT, STOP_DT, etc.). Some of the most common header names are standardized (see
+            Table 2 below) to provide data type information to software, but researchers can add data type
+            labels as needed. For all sensor, event, or feature data files, the first key/column in the header
+            line is HEADER_TIME_STAMP (because sensor data files will always have timestamps), and
+            for all other data files, the first key/column should start with “HEADER_[First column_name]”,
+            which permits any code reading the files to determine if a line is a header or data line, and then
+            to determine the column name if the line is a header line. <sup>1</sup></li>
+          <li><strong>Metadata are saved in computerand humanreadable CSV files with standard names.<br>
+            Metadata typically include:</strong>
+            <ul>
+              <li><strong>Descriptions of sensor types, properties, and placements at the time of data
+                collection.</strong> These files are also data files that include sufficient detail so that the protocol
+                can be both understood and reproduced by others. For instance, in some cases, the
+                locations where sensors are worn might change, and the files should allow for proper
+                annotation of such sensor swapping. The format described in more detail below provides
+                naming conventions that should be followed for common metadata
+                types. <a href="#">(see sensor file and sensors file)</a></li>
+              <li><strong>Descriptions of each participant.</strong> These metadata files about each participant would
+                include all special notes that might influence interpretation of the data for that particular
+                participant’s data. E.g, dominant arm, anthropometrics that affect measurement (tilt
+                angle of sensor on waist), and gait/motion inconsistencies due to musculoskeletal
+                deficiencies that can affect measurement (e.g. limp, Parkinsons, injury). These notes
+                should be easily understood by those not present during data collection. (<a href="#">see subject
+                data file</a>)</li>
+              <li><strong>Timestamped labels of the activities performed, contextinformation,
+                and/or physiological states.</strong> The time synchronization will depend upon the nature of the data
+                (e.g., for some datasets and sensors such as gait recognition, the labels will be
+                synchronized with millisecond accuracy, for others synchronization within a few seconds
+                may be sufficient. Examples of activities might be running, walking, and talking.
+                Examples of contexts might be location or properties of location (e.g., distance to a
+                park). Examples of physiological states might be heart rate or galvanic skin response.
+                (<a href="#">see annotation data file and ontology data file</a>)
+<p class="comment topline"><sup>1</sup>The header/data line distinction is important, because in some cases scripts may concatenate CSV files. Header
+                  files from multiple CSV files (e.g., for different hour of data from the same data source) could therefore end up in the
+                  same data file. To allow software to strip these lines, the lines should begin with “HEADER_”.</p>
+              </li>
+              <li><strong>Selfreported data provided by the participant throughout the study (e.g.,
+                Ecological Momentary Assessment).</strong> Answers to questions and other selfreported
+                data are synchronized with all other data sources.</li>
+              <li><strong>Notes on any special considerations about the data.</strong> These notes include special
+                exceptions for particular subjects, descriptions of how various data sources were
+                synchronized, or any other information not already specified in other files that might help
+                others interpret the data. (<a href="#">See session data file</a>)</li>
+            </ul>
+          </li>
+          <li><strong>Data are saved in a directory structure that segregates data by year, month, day, and
+            hour. </strong>The directory structure accomplishes several goals. It permits data for particular
+            timeframes to be easily identified and isolated. It permits data collected at different timeframes
+            to be easily merged. It logically breaks up large amounts of data into manageable, intuitive
+            chunks. It prevents data from being overwritten (even when there is a time zone change or
+            daylight savings time change). Finally, it creates a logical structure for saving data that spans
+            multiple hours, days, or even months (permitting scripts that allow further dataset
+            parsing/merging). The details of the directory format are described below.</li>
+          <li><strong>Data files are stored with the start time of data saving included in the file name.</strong> This
+            format, described in detail below, ensures that data conflicts are avoided and data will never be
+            accidentally overwritten.</li>
+          <li><strong>Data files should not contain data from more than one time zone. </strong>If the device (i.e. mobile
+            phone) changes time zones, it should stop saving data to the current file and create a new file
+            for the new time zone.</li>
+          <li><strong>Time zone information (UTC offset) is encoded in filenames for easy access to the
+            file/directory’s time zone information .</strong> UTC offset is the difference in hours and minutes from
+            Coordinated Universal Time (UTC) for a particular place and date. Within files, the timestamps
+            are stored in local time. However, to ensure that time zone information (and especially daylight
+            savings time shift information) is not lost and does not create data storage conflicts, UTC offset
+            is stored in the filename structure.</li>
+          <li><strong>All file and directory names are limited to alphanumeric characters.</strong> Filenames and
+            directory names will contain alphanumeric and/or selected special characters (09, az or AZ, and “”). This prevents problems from displaying these filenames on the web or saving them in various file systems. Spaces should not be used. File naming uses CamelCase structure (e.g., “ O riginal R aw”). A dot is used in the filename but the format uses it as a separator, so it should
+            not be added to the name.</li>
+          <li><strong>Timestamps are in localtime
+            format. </strong>There are two types of timestamps. Timestamps in file
+            names are in local time with timezone information. Timestamps within files are in local time
+            without timezone information (because that information can be gathered from the file name if
+            needed).
+            <ul>
+              <li>Many files contain timestamp information using the following convention:
+                [YYYY][
+                MM][
+                DD][
+                hh][
+                mm][
+                ss][
+                mmm][
+                P/M][hhmm], where YYYY=year (4 digits),
+                MM=month (2 digits [0112]),
+                DD=day (2 digits [0131]),
+                hh=hour (2 digits [0023]),
+                mm=minute (2 digits [0059]),
+                ss=second (2 digits [0059]),
+                mmm=millisecond (3 digits
+                [000999]),
+                P=plus and M=minus and hhmm represents the hour and minutes of the
+                offset of the time from GMT. The International Standard ISO 8601 is used to store all
+                timerelated
+                data. Example: 3:15 AM local time on January 1, 2000 for a timezone five
+                hours behind GMT would be listed in the filename as
+                “20000101031500000M0500”.</li>
+              <li>Internal to files, the timestamp is listed in the same way but without the timezone
+                information following this convention: [YYYY][
+                MM][
+                DD] [hh]:[mm]:[ss].[mmm]. Example:
+                3:15 AM local time on January 1, 2000 would be listed in the timestamp column of a data
+                file as “20000101
+                03:15:00.000”. Timestamps should typically be the first column in a
+                data file. The header for this column should be “HEADER_TIME_STAMP”. The
+                timestamps always refer to the local time in the place where the data were saved.
+                Timezone information can always be obtained by parsing the filename of the file storing
+                the data.</li>
+            </ul>
+          </li>
+          <li><strong>Data in CSV files are formatted in the following way to minimize encoding problems:</strong>
+            <ul>
+              <li><strong>Each record is one line</strong>, but fields may contain embedded linebreaks (see below) so that a record may span more than one line.</li>
+              <li><strong>Fields are separated with commas.</strong></li>
+              <li><strong>Headers are all caps to help differentiate them from other data. </strong>Examples of header
+                names are HEADER_TIME_STAMP and START_TIME and DATA_SAMPLE.</li>
+              <li><strong>Variable names use alphanumeric characters and CamelCase.</strong> Examples of variable
+                names are PhoneOn, Yes, No, 0, 1, and ButtonClicked.</li>
+              <li><strong>All data entries that are text values with more than one word or special characters
+                should be surrounded by doublequote
+                characters.</strong> This is so that special characters,
+                such as commas, can be handled and strings can be more than one word in length (e.g.
+                “This is a sample text”). Oneword
+                text values do not need to be surrounded by
+                doublequote
+                (e.g. male, female, High, Moderate, etc.). If the text value contains double
+                quotes, the double quotes need to be properly escaped with a backslash (e.g. “The
+                subject said, \”I did not feel well today \”, repeatedly”).</li>
+              <li><strong>Fields with embedded commas must be delimited with doublequote
+                characters. </strong>For example, a field with value New York, NY should be should be stored as “New York,
+                NY” because the value has an embedded comma.</li>
+              <li><strong>Fields that contain double quote characters must be surrounded by
+                doublequotes,
+                and the embedded double-quotes
+                must each be represented by a
+                pair of consecutive double quotes.</strong> For example<br>
+                <i>The subject said “No”</i><br>
+                should be stored as<br>
+                <i>“The subject said ““No”””.</i></li>
+              <li><strong>A field that contains embedded linebreaks
+                must be surrounded by doublequotes.</strong> For example (this is a single field in a record),
+                <pre>      
+    John,
+         Please bring the patient in.
+         J.D.
+should be stored as :
+    “ John,
+           Please bring the patient in.
+           J.D. ”</pre>
+              </li>
+              <li><strong>Leading and trailing spacecharacters
+                (i.e. spaces and tabs) adjacent to comma
+                field separators and not in quotes are not allowed and will be ignored.</strong> (e.g.
+                <pre>“Eating” , “Drinking”, “Walking”
+is equivalent to
+“Eating”,”Drinking”,”Walking”</pre>
+                because the spaces will be removed)</li>
+              <li><strong>Fields with leading or trailing spaces must be delimited with doublequote
+                characters.</strong> (e.g. To preserve the spaces in the previous example, the record should be
+                stored as: “Eating ”,“ Drinking”, “ Walking”)</li>
+              <li><strong>Fields may always be delimited with double quotes.</strong> The delimiters will always be
+                discarded.</li>
+              <li><strong>The first record in a CSV file is a header record containing column (field) names,
+                and the first header should start with “HEADER_[HEADER_NAME]”. </strong>(E.g.,
+                “HEADER_FIRST_NAME”)</li>
+            </ul>
+          </li>
+        </ul>
+        <p>The remainder of this document describes the details of the format, which uses conventions for data
+          files, file naming, and directory structure.</p>
+        <h2 id="supported-sensor-types">Uniquely identifying sensors (SensorType)</h2>
+        <p>The format assigns meaningful “SensorType” names to all sensors (e.g., “Wocket”,
+          “ActigraphGT3XPlus”, “FitbitV3”) so that simply by looking at the file name, researchers can have a
+          sense of what type of data will be in the file. Refer to Table 1 for some SensorType examples.
+          Individual pieces of sensor hardware are uniquely identifiable by their SensorType combined with a
+          “SensorID.” SensorIDs differentiate sensors of the same type using a unique identifier. For wireless
+          sensors, the SensorID might be a MAC Address. For phone sensors, the SensorID might be the unique
+          phone ID (e.g., IMEI). When such a unique number does not exist, GUIDs (Globally Unique Identifiers)
+          generated by the user’s computer system are used to ensure uniqueness. They can be randomly
+          generated. The SensorType name should be in CamelCase style.</p>
+        <table width="100%" border="0" cellspacing="0" cellpadding="1" class="table">
+          <tr>
+            <th width="25%" align="left" valign="top">SensorType (unique type
+              identifier, CamelCase style)</th>
+            <th width="15%" align="left" valign="top">Source for<br>
+              SensorID</th>
+            <th width="15%" align="left" valign="top">Recommended<br>
+              Source and<br>
+              Format for<br>
+              VersionInfo<br>
+              (replace space,,_<br>
+              with ‘x’; when no<br>
+              inforamtion is<br>
+              avaialble, use<br>
+              ‘NA’ for not<br>
+              available)</th>
+            <th width="45%" align="left" valign="top">Typical data</th>
+          </tr>
+          <tr>
+            <td>AndroidPhone</td>
+            <td>IMEI</td>
+            <td>(e.g.,
+              LGxNexus4xAndro
+              id5x1x1)</td>
+            <td>3axis
+              accelerometer, gyroscope, light, steps,
+              location</td>
+          </tr>
+          <tr>
+            <td>iPhone</td>
+            <td>IMEI</td>
+            <td>&nbsp;</td>
+            <td>3axis
+              accelerometer, gyroscope, light, steps,
+              location</td>
+          </tr>
+          <tr>
+            <td>AndroidWearWatch</td>
+            <td>Watch doesn’t have
+              IMEI, we can use the
+              MAC address or
+              Serial number</td>
+            <td>&nbsp;</td>
+            <td>3axis
+              accelerometer, gyroscope, heart rate monitor</td>
+          </tr>
+          <tr>
+            <td>Wocket</td>
+            <td>MAC Address</td>
+            <td>&nbsp;</td>
+            <td>3axis
+              /+
+              4 g 10 bit 40 Hz (5120)
+              accelerometer</td>
+          </tr>
+          <tr>
+            <td>ActigraphGT3XPlus</td>
+            <td>Serial Number</td>
+            <td>(e.g. v5x3)</td>
+            <td>3axis
+              /+
+              6 g 12 bit 30100Hz
+              accelerometer, steps</td>
+          </tr>
+          <tr>
+            <td>ActigraphGT9X</td>
+            <td>Serial Number</td>
+            <td>&nbsp;</td>
+            <td>3axis
+              /+
+              8 g 12 bit 30100Hz
+              accelerometer and
+              /+
+              16 g IMU accelerometer</td>
+          </tr>
+          <tr>
+            <td>ActigraphGT3XBT</td>
+            <td>Serial Number</td>
+            <td>&nbsp;</td>
+            <td>3axis
+              /+
+              8 g 12 bit 30100Hz
+              accelerometer</td>
+          </tr>
+          <tr>
+            <td>ActivPAL</td>
+            <td>Serial Number</td>
+            <td>&nbsp;</td>
+            <td>3axis
+              01.5g
+              8 bit 10 Hz accelerometer</td>
+          </tr>
+          <tr>
+            <td>GENEActiv</td>
+            <td>Serial Number</td>
+            <td>&nbsp;</td>
+            <td>/+
+              8g 12 bit Selectable 10100Hz
+              (10Hz)
+              accelerometer</td>
+          </tr>
+          <tr>
+            <td>OmronHJ720IT</td>
+            <td>Serial Number</td>
+            <td>&nbsp;</td>
+            <td>Steps per minute</td>
+          </tr>
+          <tr>
+            <td>QstarzGPSBTQ1000XT</td>
+            <td>Serial Number</td>
+            <td>&nbsp;</td>
+            <td>Location longitude, latitude, velocity</td>
+          </tr>
+          <tr>
+            <td>ZephyrHxMBT</td>
+            <td>MAC Address</td>
+            <td>&nbsp;</td>
+            <td>Heart rate beats per minute
+              As more sensors are created, the corresponding SensorType name must be added to the table</td>
+          </tr>
+        </table>
+        <p>As more sensors are created, the corresponding SensorType name must be added to the table above.</p>
+        <h2 id="supported-data-types">Typing sensor data (DataType)</h2>
+        <p>More information on the type of sensor data in a file can be obtained by looking at the first header line
+          in the file. As much as possible, researchers are encouraged to use headers in sensor data files that
+          are consistent, so that data computation and visualization software tools can determine the type of
+          sensor data from the datasets. Table 2 includes the most common types of sensor data and the
+          recommended header fields.</p>
+        <table width="100%" border="0" cellpadding="0" cellspacing="0" class="table">
+          <tr>
+            <th width="45%">Type of data name (DataType) (CamelCase,
+              alphanumeric characters only, no spaces)</th>
+            <th>Recommended header data column names</th>
+          </tr>
+          <tr>
+            <td>AccelerationCalibrated</td>
+            <td>X_ACCELERATION_METERS_PER_SECOND_SQUARED,<br>
+              Y_ACCELERATION_METERS_PER_SECOND_SQUARED,<br>
+              Z_ACCELERATION_METERS_PER_SECOND_SQUARED</td>
+          </tr>
+          <tr>
+            <td>AccelerationUncalibrated</td>
+            <td>X_ACCELERATION_UNCALIBRATED,<br>
+              Y_ACCELERATION_UNCALIBRATED,<br>
+              Z_ACCELERATION_UNCALIBRATED</td>
+          </tr>
+          <tr>
+            <td>AngularSpeed<br>
+              (from Gyroscope)</td>
+            <td>X_ANGULAR_SPEED_RADIANS_PER_SECOND,<br>
+              Y_ANGULAR_SPEED_RADIANS_PER_SECOND,<br>
+              Z_ANGULAR_SPEED_RADIANS_PER_SECOND</td>
+          </tr>
+          <tr>
+            <td>AngularSpeedCalibrated</td>
+            <td>X_ANGULAR_SPEED_RADIANS_PER_SECOND_CALIBRATED,<br>
+              Y_ANGULAR_SPEED_RADIANS_PER_SECOND_CALIBRATED,<br>
+              Z_ANGULAR_SPEED_RADIANS_PER_SECOND_CALIBRATED,<br>
+              X_DRIFT_ RADIANS_PER_SECOND_CALIBRATED,<br>
+              Y_DRIFT_ RADIANS_PER_SECOND_CALIBRATED,<br>
+              Z_DRIFT_ RADIANS_PER_SECOND_CALIBRATED</td>
+          </tr>
+          <tr>
+            <td>AngularSpeedUncalibrated X_</td>
+            <td>X_ANGULAR_SPEED_RADIANS_PER_SECOND_UNCALIBRATED,<br>
+              Y_ANGULAR_SPEED_RADIANS_PER_SECOND_UNCALIBRATED,<br>
+              Z_ANGULAR_SPEED_RADIANS_PER_SECOND_UNCALIBRATED,<br>
+              X_DRIFT_ RADIANS_PER_SECOND_UNCALIBRATED,<br>
+              Y_DRIFT_ RADIANS_PER_SECOND_UNCALIBRATED,<br>
+              Z_DRIFT_ RADIANS_PER_SECOND_UNCALIBRATED</td>
+          </tr>
+          <tr>
+            <td>Location</td>
+            <td>ACCURACY,<br>
+              LONGITUDE,<br>
+              LATITUDE,<br>
+              RADIUS_METERS,<br>
+              X_VELOCITY_METERS_PER_SECOND,<br>
+              Y_VELOCITY_METERS_PER_SECOND,<br>
+              Z_VELOCITY_METERS_PER_SECOND</td>
+          </tr>
+          <tr>
+            <td>Magneticfield</td>
+            <td>X_MAGNETIC_MICRO_TESLA,<br>
+              Y_MAGNETIC_MICRO_TESLA,<br>
+              Z_MAGNETIC_MICRO_TESLA,<br>
+              X_MAGNETIC_BIAS_MICRO_TESLA,<br>
+              Y_MAGNETIC_BIAS_MICRO_TESLA,<br>
+              Z_MAGNETIC_BIAS_MICRO_TESLA</td>
+          </tr>
+          <tr>
+            <td>MagneticfieldUncalibrated</td>
+            <td>X_MAGNETIC_MICRO_TESLA,<br>
+              Y_MAGNETIC_MICRO_TESLA,<br>
+              Z_MAGNETIC_MICRO_TESLA</td>
+          </tr>
+          <tr>
+            <td>Steps</td>
+            <td>STEP_COUNT,<br>
+              STEPS_PER_MINUTE</td>
+          </tr>
+          <tr>
+            <td>AccelerationMagnitude</td>
+            <td>MAGNITUDE,<br>
+              SAMPLE_COUNTS</td>
+          </tr>
+          <tr>
+            <td>Light</td>
+            <td>LIGHT_LUX</td>
+          </tr>
+          <tr>
+            <td>AtmosphericPressure</td>
+            <td>PRESSURE_HPA</td>
+          </tr>
+          <tr>
+            <td>Proximity</td>
+            <td>DISTANCE_CENTIMETERS</td>
+          </tr>
+          <tr>
+            <td>HeartRate</td>
+            <td>HEART_RATE_BEATS_PER_MINUTE,<br>
+              HEART_RATE_INTERBEAT_INTERVAL_MILLISECONDS</td>
+          </tr>
+          <tr>
+            <td>GalvanicSkinResponse</td>
+            <td>?</td>
+          </tr>
+          <tr>
+            <td>Gravity</td>
+            <td>X_GRAVITY_METERS_PER_SECOND_SQUARED,<br>
+              Y_GRAVITY_METERS_PER_SECOND_SQUARED,<br>
+              Z_GRAVITY_METERS_PER_SECOND_SQUARED</td>
+          </tr>
+          <tr>
+            <td>LinearAcceleration</td>
+            <td>X_LINEAR_ACCELERATION_METERS_PER_SECOND_SQUARED,<br>
+              Y_LINEAR_ACCELERATION_METERS_PER_SECOND_SQUARED,<br>
+              Z_LINEAR_ACCELERATION_METERS_PER_SECOND_SQUARED</td>
+          </tr>
+          <tr>
+            <td>Rotation</td>
+            <td>X_ROTATION_QUATERNION,<br>
+              Y_ROTATION_QUATERNION,<br>
+              Z_ROTATION_QUATERNION,<br>
+              ACCURACY_RADIANS</td>
+          </tr>
+          <tr>
+            <td>Orentation</td>
+            <td>AZIMUTH_ANGLE<br>
+              PITCH_ANGLE<br>
+              ROLL_ANGLE</td>
+          </tr>
+          <tr>
+            <td>Humidity</td>
+            <td>HUMIDITY_PERCENT</td>
+          </tr>
+          <tr>
+            <td>Temperature</td>
+            <td>TEMPERATURE_CELCIUS</td>
+          </tr>
+          <tr>
+            <td>Network</td>
+            <td>SWITCH_NETWORK_TYPE, DATA_USAGE_APP,<br>
+              DATA_USAGE_TOTAL</td>
+          </tr>
+          <tr>
+            <td>WifiWirelessSignalStrength</td>
+            <td>WIFI_SENSOR_UNIQUE_ID,<br>
+              WIFI_RECEIVED_SIGNAL_STRENGTH_INDICATOR</td>
+          </tr>
+          <tr>
+            <td>BluetoothWirelessSignalStrength</td>
+            <td>BLUETOOTH_SENSOR_UNIQUE_ID,<br>
+              BLUETOOTH_RECEIVED_SIGNAL_STRENGTH_INDICATOR</td>
+          </tr>
+          <tr>
+            <td>PhoneCommunication</td>
+            <td>CALL_INCOMMING_OR_OUTGOING,<br>
+              SMS_INCOMMING_OR_OUTGOING,<br>
+              PHONE_NUMBER</td>
+          </tr>
+          <tr>
+            <td>Transportation</td>
+            <td>TRANSPORTATION_METHOD,<br>
+              ACCURACY_PERCENTAGE</td>
+          </tr>
+          <tr>
+            <td>Battery</td>
+            <td>BATTERY_LEVEL,<br>
+              BATTERY_CHARGING</td>
+          </tr>
+        </table>
+        <h2 id="directory-structure">Data directory structure</h2>
+        <p>The toplevel
+          directory structure for data storage follows this convention, where all names include only
+          alphanumeric characters and “-”
+          (text following the “//” are comments):</p>
+        <ul>
+          <li>[StudyName] <span class="code">// Name of study in camelcase</span>
+            <ul>
+              <li>[ParticipantID1] <span class="code">// All data for participant ID1 is under this directory. A good structure for
+                ParticipantIDs would be “Participant_001”, “Participant_002”, etc. or something similar.</span></li>
+              <li>[ParticipantID2] <span class="code">// All data for participant ID2 is under this directory.</span></li>
+              <li>[ParticipantIDn] <span class="code">// All data for participant IDn is under this directory.</span>
+                <ul>
+                  <li>OriginalRaw <span class="code">// Raw data files from each sensor in the original manufacturer’s
+                    format are stored here, untouched. This is useful in case an error is found in a
+                    converter or some other type of unexpected problem is discovered.</span></li>
+                  <li>MasterSynced <span class="code">// This directory stores the fully synchronized dataset with no
+                    additional processing or computed data files. This is the raw data collected from
+                    the field but converted into the mHealth format and fully synchronized. These
+                    data should never be deleted.</span>
+                    <ul style="list-style-type:disc">
+                      <li>[YYYY] <span class="code">// 4digit year</span>
+                        <ul style="list-style-type:circle">
+                          <li>[MM] <span class="code">// 2digit month. January is “01” and December is “12”.</span>
+                            <ul style="list-style-type:square">
+                              <li>[DD] <span class="code">// 2digit day. “01”-” 31”.</span>
+                                <ul style="list-style-type:disc">
+                                  <li>[HH] <span class="code">// 2digit
+                                    hour in format HR, where
+                                    Midnight1AM
+                                    is the “00” hour, 6AM7AM
+                                    is the “06”
+                                    hour, and 11PMMidnight
+                                    is the “23” hour. All
+                                    sensor data from high sampling rate sensors and
+                                    most data from low sampling rate sensors are
+                                    stored in the hour directories. Data file naming
+                                    conventions provide clues to the data file content
+                                    and prevent naming collisions.
+                                    Three types of data files are stored in these hour
+                                    directories: sensor data (*.sensor.csv.gz),
+                                    annotation data (*.annotation.csv.gz”), and event
+                                    data (*.event.csv.gz).
+                                    Only original data are contained in this directory.
+                                    Metadata computed from these data are placed in
+                                    the Metadata directory.</span>
+                                    <ul style="list-style-type:circle">
+                                      <li>[SensorTypeDataTypeVersionInfo].[
+                                        Senso
+                                        rID].[YYYY][
+                                        MM][
+                                        DD][
+                                        hh][
+                                        mm][
+                                        ss][
+                                        mmm
+                                        ][
+                                        P/M][hhmm].sensor.csv.gz <span class="code">//
+                                        Compressed, CSV sensor data from this
+                                        particular sensor, where the time is the time
+                                        the first line of data was written. The
+                                        SensorType and SensorID and VersionInfo
+                                        together uniquely identify the sensor. The
+                                        content of these files is described below.</span></li>
+                                      <li>[OntologyID].[AnnotatorID].[YYYY][
+                                        MM][
+                                        D
+                                        D][
+                                        hh][
+                                        mm][
+                                        ss][
+                                        mmm][
+                                        P/M][hhmm].annot
+                                        ation.csv.gz <span class="code">// Compressed, CSV annotation
+                                        data, where the OntologyID and
+                                        AnnotatorID are projectspecific
+                                        and
+                                        combine to uniquely identify the type of data
+                                        contained within the file. The time is the
+                                        time the first line of data was written. The
+                                        content of these files is described below.</span></li>
+                                      <li>[EventType].[EventID].[YYYY][
+                                        MM][
+                                        DD][
+                                        h
+                                        h][
+                                        mm][
+                                        ss][
+                                        mmm][
+                                        P/M][hhmm].event.csv.
+                                        gz <span class="code">// Compressed, CSV event data, where
+                                        the EventType and EventID are
+                                        projectspecific
+                                        and combine to uniquely
+                                        identify the type of data contained within the
+                                        file. The time is the time the first line of data
+                                        was written. The content of these files is
+                                        described below.</span></li>
+                                      <li>… <span class="code">// Other raw data, annotation, or event
+                                        data files</span></li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>Subject.csv <span class="code">// Data on this particular subject that never changes.</span></li>
+                  <li>[SensorType].[SensorID].annotation.csv.gz <span class="code">// Data on how the SensorType +
+                    SensorID sensor is placed/worn that may change over time
+                    // Participantspecific
+                    data computed by a system from the data contained within
+                    MasterSynced. This would include all computed summary data, all computed
+                    features, etc.</span></li>
+                  <li>MetaData[
+                    TaskName1] <span class="code">// This label should describe the data contained within, which is data computed
+                    from MasterSynced. The structure of this directory mirrors the structure of
+                    MasterSynced and can include copies of the data that have been manipulated by
+                    algorithms. These should be data that could be automatically regenerated from
+                    MasterSynced if necessary.</span>
+                    <ul style="list-style-type:disc">
+                      <li>[YYYY] <span class="code">// 4digit year</span>
+                        <ul style="list-style-type:circle">
+                          <li>[MM] <span class="code">// 2digit month.</span>
+                            <ul style="list-style-type:square">
+                              <li>[DD] <span class="code">// 2digit day.</span>
+                                <ul style="list-style-type:disc">
+                                  <li>[HH] <span class="code">// 2digit
+                                    hour. Only data that can be
+                                    (re)computed from MasterSynced are
+                                    stored here.</span>
+                                    <ul style="list-style-type:circle">
+                                      <li>[AlgorithmType].[AlgorithmID].[YYYY
+                                        ][
+                                        MM][
+                                        DD][
+                                        hh][
+                                        mm][
+                                        ss][
+                                        mmm][
+                                        P
+                                        /M][hhmm].feature.csv.gz <span class="code">//
+                                        Computed data. AlgorithmType and
+                                        AlgorithmID should be unique and
+                                        descriptive. Otherwise, the format is
+                                        identical to the event data file
+                                        described above.</span></li>
+                                      <li>[OntologyID].[AnnotatorID].[YYYY][
+                                        MM][
+                                        DD][
+                                        hh][
+                                        mm][
+                                        ss][
+                                        mmm][
+                                        P/
+                                        M][hhmm].annotation.csv.gz</li>
+                                      <li>… <span class="code">// Other feature data</span></li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>MetaData[
+                    TaskName2] <span class="code">// More metadata (e.g., classification output).</span></li>
+                </ul>
+              </li>
+              <li>Sessions.csv <span class="code">// Information about sessions that will not change.</span></li>
+              <li>Sensors.csv <span class="code">// Information about sensors that will not change.</span></li>
+              <li>Annotators.csv <span class="code">// Information about all annotators.</span></li>
+              <li>Ontology.[OntologyID1].csv <span class="code">// Information about the [OntologyID1] ontology.</span></li>
+              <li>Ontology.[OntologyID2].csv <span class="code">// Information about the [OntologyID2] ontology.</span></li>
+              <li>MetadataCrossParticipant <span class="code">// Data computed across participants for certain sessions,
+                recorded by time in the study (versus absolute date)</span>
+                <ul style="list-style-type:square">
+                  <li>[SessionName1] <span class="code">// A session that must be defined in the Sessions.csv.gz file</span>
+                    <ul style="list-style-type:disc">
+                      <li>Year[Number] <span class="code">// Year index (Number>0). E.g., “Year1”, “Year2”, ...</span>
+                        <ul style="list-style-type:circle">
+                          <li>Month[Number] <span class="code">// Month index (Number>0). E.g., “Month1”,
+                            “Month11”, “Month12”</span>
+                            <ul style="list-style-type:disc">
+                              <li>[SessionName1].[YYYY][
+                                MM][
+                                DD][
+                                hh][
+                                mm][
+                                ss][
+                                mmm][
+                                P/M][hhmm].feature.csv.gz <span class="code">// Monthlevel
+                                data computed
+                                from original raw data or metadata</span></li>
+                              <li>Week[Number] <span class="code">// Week in study index (Number>0), E.g.,
+                                “Week1”, “Week3”, “Week11”, where 7 days are a week.</span>
+                                <ul style="list-style-type:square">
+                                  <li>[SessionName1].[YYYY][
+                                    MM][
+                                    DD][
+                                    hh][
+                                    mm][
+                                    ss][
+                                    mmm][
+                                    P/M][hhmm].feature.csv.gz <span class="code">// Weeklevel
+                                    data</span></li>
+                                  <li>Day[Number] <span class="code">// Day in study index (Number>0).
+                                    E.g., “Day1”, “Day23”, “Day1043”</span>
+                                    <ul style="list-style-type:circle">
+                                      <li>[SessionName1].[YYYY][
+                                        MM][
+                                        DD][
+                                        hh][
+                                        m
+                                        m][
+                                        ss][
+                                        mmm][
+                                        P/M][hhmm].feature.csv.gz <span class="code">// Daylevel
+                                        data</span></li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <h5>The above directory format segregates data logically as follows:</h5>
+        <ul>
+          <li><strong>[StudyName]</strong> . Contains all information related to a specific study.</li>
+          <li><strong>[ParticipantID]</strong> . Contains all information related to a specific participant within that study.</li>
+          <li><strong>OriginalRaw</strong> . Contains all the original raw files output during the study from various devices for
+            a particular participant. Files in this directory should never be deleted to preserve the original,
+            raw, untouched data.</li>
+          <li><strong>MasterSynced</strong> . Contains the master copy of the original data, synchronized, in the mHealth
+            format. Once the data have been cleaned and synchronized, any transformation done to these
+            original data files should create new files in the appropriate unique subdirectory(s) in the
+            Metadata directory.</li>
+          <li><strong>Metadata</strong> . This directory contains metadata created when processing the MasterSynced data,
+            broken into Metadata “TaskName” directories. These may include fully or partially transformed
+            data or algorithm outputs that can be subsequently used as the source of data for later
+            tasks/visualization and can be deleted or modified easily without any impact on the OriginalRaw
+            data or the MasterSynced data. Each metadata task contains all information/data related to a
+            specific analysis, algorithm, and/or transformation on a set of original data of a specific
+            participant’s data. This analysis, algorithm, and/or transformation can be anything ranging from
+            simple timeshifted
+            transformations of the original data to creating sessionspecific
+            data sets,
+            which can then be transformed further. For example, a researcher may want to run an algorithm
+            to find the average number of ambulatory steps a specific participant takes in an hour. In this
+            case, a [MetadataTask] could be named “ AverageStepsPerHour ”. These “task” directories
+            should maintain a directory structure identical to ParticipantID’s MasterSynced directory
+            structure where the synchronized raw data is stored.</li>
+          <li><strong>MetadataCrossParticipant</strong> . Contains all information/data related to any type of analysis,
+            algorithm, and/or transformation done on multiple participants’ data. For example, a researcher
+            may want to calculate the average number of steps taken in Day1, Day2, etc. for a particular
+            study session. In this case, the “task” subdirectory could be named “ AverageStepsPerHour ”. In
+            these directories, data are organized by day,
+            month,
+            and yearinstudy.</li>
+          <li><strong>[YearNumber], [MonthNumber], [WeekNumber], [DayNumber]</strong> . These directories represent
+            the number of year/month/week/day of a particular session of the study. For example, a
+            researcher may want to run a crossparticipant
+            session (named “Session1”) of a certain study
+            (named “Study1”) for one week. The data files for this session should be stored in this directory
+            structure: Study1/MetadataCrossParticipant/Session1/Year1/Month1/Week1/[Day1 Day7],
+            where [Day1 Day7]
+            represents 7 subdirectories under Week1 for each day in the session.
+            Another example could be a session of a study being run on multiple participants for 3 years, in
+            which case the data files should be stored in this directory structure:
+            [StudyName]/MetadataCrossParticipant/[SessionName]/[Year1 Year3].</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

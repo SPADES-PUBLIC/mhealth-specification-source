@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>mHealth</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<!--[if lt IE 9]> <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script> <![endif]-->
+</head>
+<body>
+<div class="content-container">
+  <div class="left-pan">
+    <div class="col-x">
+      <ul>
+        <li class="awstoc opened"><a href="introduction.html">INTRODUCTION</a>
+          <ul>
+            <li class="awstoc leaf"><a href="introduction.html#description">Description</a></li>
+            <li class="awstoc leaf"><a href="introduction.html#example-data">Example Data</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="format-specification.html">FORMAT SPECIFICATION</a>
+          <ul>
+            <li class="awstoc leaf"><a href="format-specification.html#format-design-decisions">Format Design Decisions &amp; Specifications</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#supported-sensor-types">Supported Sensor Types</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#supported-data-types">Supported Data Types</a></li>
+            <li class="awstoc leaf"><a href="format-specification.html#directory-structure">Directory Structure</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened"><a href="data-metadata-files.html">DATA AND METADATA FILES</a>
+          <ul>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensor-data-files">Sensor Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#event-data-files">Event Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#feature-data-files">Feature Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#annotation-data-files">Annotation Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#annotators-data-files">Annotators Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#ontology-data-files">Ontology Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensors-metadata-files">Sensors (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#subjects-metadata-files">Subjects (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sessions-metadata-file">Sessions (Meta)Data Files</a></li>
+            <li class="awstoc leaf"><a href="data-metadata-files.html#sensor-annotation-files">Sensor Annotation Files</a></li>
+          </ul>
+        </li>
+        <li class="awstoc opened active"><a href="appendix.html">APPENDIX</a>
+          <ul>
+            <li class="awstoc leaf"><a href="appendix.html#gzip-usage-decision">GZIP Usage Decision</a></li>
+            <li class="awstoc leaf"><a href="appendix.html#efficient-use-of-disk-space">Efficient Use of Disk Space</a></li>
+            <li class="awstoc leaf"><a href="appendix.html#file-i-o">File I/O</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="right-pan">
+    <div class="main">
+      <div class="col-xx">
+        <h1>Appendix</h1>
+        <h2 id="gzip-usage-decision">Using text formats with Gzip compression</h2>
+        <p>One concern some have raised with saving data in a text (ASCII) format instead of binary is that text is
+          not an efficient use of disk space, and that the I/O processing of the text files will dramatically slow
+          down software using the data. Each concern is discussed below.</p>
+        <h2 id="efficient-use-of-disk-space">Efficient use of disk space</h2>
+        <p>The mHealth format saves all data in text (ASCII) files and then calls for compressing those files using
+          gzip compression. Some tests were therefore performed to verify that saving high sampling rate CSV
+          text data and then compressing the resulting file was both efficient in terms of storage and efficient in
+          terms of computation required.</p>
+        <p>Best-and worst-case csv files with high resolution 3axis
+          accelerometer data were generated to assess
+          the impact on compression. For the bestcase
+          scenario, the csv contained 1 hour of 50 Hz data with a
+          full readable timestamp per row and floating point g values that are not changing (mimicking sedentary
+          behavior). <strong>Below are 10 rows from that file:</strong></p>
+        <p style="color:#000; padding-left:50px;"> 2014/08/22 11:18:16.778,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.798,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.818,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.838,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.858,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.878,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.898,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.918,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.938,1.001,-1.000,-0.999<br>
+          2014/08/22 11:18:16.958,1.001,-1.000,-0.999 </p>
+        <p>The resulting CSV file is approximately 7.9MB for a full hour, and when gzipped it compresses to
+          499KB, a 94% compression ratio. [Add how long it takes on a phone to do the compression]</p>
+        <p>For the worstcase
+          scenario, a second csv file with 1 hour of 50 Hz data with a full readable timestamp
+          per row and floating point g values that are randomly changing over a 6 g range was generated. <strong>Below are 10 rows from the file:</strong></p>
+        <p style="color:#000; padding-left:50px;"> 2014/08/22 11:18:18.060,-0.778,-4.671,-4.159<br>
+          2014/08/22 11:18:18.080,-0.166,0.025,-0.424<br>
+          2014/08/22 11:18:18.100,-0.040,-0.164,-1.063<br>
+          2014/08/22 11:18:18.120,-2.129,0.169,-0.622<br>
+          2014/08/22 11:18:18.140,2.758,5.672,4.389<br>
+          2014/08/22 11:18:18.160,4.380,2.718,-2.191<br>
+          2014/08/22 11:18:18.180,-3.069,-1.670,-3.781<br>
+          2014/08/22 11:18:18.200,-3.953,3.567,4.259<br>
+          2014/08/22 11:18:18.220,-2.534,-1.552,2.706<br>
+          2014/08/22 11:18:18.240,-5.429,-0.537,2.268 </p>
+        <p>The resulting CSV file is approximately 7.8 MB for a full hour. Notice that it has approximately the same
+          size as the previous case because both files have approximately the same number of characters.
+          Gzipping the file reduces it to 2.0MB, a 74% compression ratio.</p>
+        <p>In contrast, the same tests were performed where the data were saved in binary format. For the
+          bestcase scenario, the resulting binary file is approximately 7.0MB for a full hour, and when gzipped it
+          compressed to 486KB with a 93% compression ratio. For the worstcase scenario, the resulting binary file is approximately 7.0MB for a full hour, and when gzipped it compressed to 2.3MB with a 67% compression ratio. Note that for both tests, the resulting binary files have an identical filesize, which is
+          expected due to the fact that all floating point numbers (accelerometer x,y,z) are stored as bytes (4
+          bytes each, 12 bytes total).</p>
+        <p>Comparing the two versions of the second test (CSV vs binary, randomized data points), we can
+          conclude that the CSV format yielded a smaller file size after gzipped (2.0MB vs 2.3MB, respectively).
+          This is expected, due to the fact that CSV files can be gzipped more efficiently because in the average
+          case of an accelerometer data file, the first 23
+          characters (including the minus sign for negative
+          numbers) of the floating point values are largely repeated across the file. In the case of the binary data
+          file, all floating point values are always stored as 4 bytes which have to be preserved by the gzip
+          compression, resulting in a less efficient compression rate.</p>
+        <p>Realistically, accelerometer values do not change randomly and dramatically on all axes as shown in
+          the previous example. There are physical limitations to movement and people spend considerable time
+          sedentary. Therefore, it is likely that the average data file size for an hour of accelerometer data
+          collected from a wearable sensor will be in the middle of the range between 500K and 2.0MB (i.e.
+          around 1.2MB). In addition, the inclusion of a full timestamp per row has minimal impact because most
+          of the characters are repeated in every row and therefore gzip compresses the timestamp efficiently.
+          Indeed, compressed Actigraph data from real users (without timestamps) led to csv.gz files of about
+          700KB per hour.</p>
+        <h2 id="file-i-o">File I/O</h2>
+        <table width="100%" cellspacing="0" cellpadding="1" border="0" class="table">
+          <tbody>
+            <tr>
+              <th width="13%" valign="top" align="left">gt3x</th>
+              <th width="13%" valign="top" align="left">mHealth**</th>
+              <th width="17%" valign="top" align="left">compressed differentials***</th>
+              <th width="12%" valign="top" align="left">csv</th>
+              <th width="9%" valign="top" align="left">sampling rate(Hz)</th>
+              <th width="18%" valign="top" align="left">start (UTC)</th>
+              <th width="18%" valign="top" align="left">end (UTC)</th>
+            </tr>
+            <tr>
+              <td>35.6 kB</td>
+              <td>34.1 kB</td>
+              <td>23.4 kB</td>
+              <td>332.5 kB</td>
+              <td>30</td>
+              <td>2010/10/26 13:30:00</td>
+              <td>2010/10/26 13:35:56</td>
+            </tr>
+            <tr>
+              <td>1.8
+                MB</td>
+              <td>1.7 MB</td>
+              <td>1.1 MB</td>
+              <td>13.5 MB</td>
+              <td>30</td>
+              <td>2015/04/09 14:02:00</td>
+              <td>2015/04/09 17:36:33</td>
+            </tr>
+            <tr>
+              <td>1.8
+                MB</td>
+              <td>1.7 MB</td>
+              <td>1.1 MB</td>
+              <td>13.1 MB</td>
+              <td>30</td>
+              <td>2015/04/09 14:04:00</td>
+              <td>2015/04/09 17:36:06</td>
+            </tr>
+            <tr>
+              <td>486.2
+                kB</td>
+              <td>1.3 MB</td>
+              <td>0.9 MB</td>
+              <td>13.5 MB</td>
+              <td>30</td>
+              <td>2015/04/09 14:00:00</td>
+              <td>2015/04/09 17:36:55</td>
+            </tr>
+            <tr>
+              <td>20.8
+                MB</td>
+              <td>19.6
+                MB</td>
+              <td>12.2 MB</td>
+              <td>167.2 MB</td>
+              <td>80</td>
+              <td>2011/10/13 17:30:00</td>
+              <td>2011/10/14 09:11:26</td>
+            </tr>
+            <tr>
+              <td>61.5
+                MB*</td>
+              <td>173.5
+                MB</td>
+              <td>123.6 MB</td>
+              <td>1.9 GB</td>
+              <td>30</td>
+              <td>2013/11/19 00:00:00</td>
+              <td>2013/12/09 11:29:02</td>
+            </tr>
+            <tr>
+              <td>72.2
+                MB*</td>
+              <td>192.0
+                MB</td>
+              <td>129.2 MB</td>
+              <td>1.9 GB</td>
+              <td>30</td>
+              <td>2013/12/09 00:00:00</td>
+              <td>2013/12/09 11:19:48</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>* Large gaps occur in the data for GT3X file format version 2. When converting to csv (mHealth or
+          otherwise), Actigraph’s guide instructs developers to fill in these gaps using the last known data point,
+          causing the resulting mHealth file to be larger than the compressed gt3x version, depending on how
+          large and frequent the gaps are within the gt3x file. For files spanning over longer ranges of time, the
+          size difference may become more apparent given that Actigraph leaves gaps in the data empty. For the
+          two marked data points, without filling the gaps, the mHealth file sizes are 66.3 MB (csv is 409.2 MB,
+          compressed differentials is 39.6 MB, ~60% total gap in the data) and 88.1 MB (csv is 473.9 MB,
+          compressed differentials is 48.7 MB, ~55% total gap in the data) respectively.</p>
+        <p>** Output from gt3xtomhealth
+          converter was not split into separate hourly files for comparison sake.</p>
+        <p>*** For an hour’s worth of data sampled at 30Hz where the person wearing the accelerometer is
+          sedentary, compressed differentials can yield an output as low as 316.4 kB (eg. 3rd row in the table),
+          where each data point is 3 bytes except the first line, which has the full timestamp and data (to serve as
+          a reference point).</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

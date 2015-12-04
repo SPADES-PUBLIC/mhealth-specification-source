@@ -1,0 +1,225 @@
+/*@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600,700);*/
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600,400italic,600italic,700,700italic,300);
+@import url(https://fortawesome.github.io/Font-Awesome/assets/font-awesome/css/font-awesome.css);
+*:before, *:after {
+	box-sizing: border-box;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+* {
+	margin:0px;
+	padding:0px;
+}
+body {
+	font-family:'Open Sans', sans-serif;
+	color:#444;
+}
+a {
+	color: #0087cc;
+	text-decoration:none;
+}
+a:hover {
+	color:#e47911;
+	text-decoration:underline;
+}
+.content-container {
+	width:100%;
+}
+.left-pan {
+	position: fixed;
+	float: left;
+	width: 350px;
+	height: 100%;
+	height: calc(100% - 0px);
+	overflow-y: auto;
+	max-width: 900px;
+	min-width: 100px;
+}
+.right-pan {
+	position:relative;
+	margin-left:350px;
+}
+.col-x {
+	padding:30px 20px;
+}
+.col-xx {
+	padding:30px 40px 20px;
+}
+.main {
+	width:100%;
+}
+.main h1 {
+	font-size:26px;
+	font-weight:700;
+	padding:0 0 5px 0;
+	margin-bottom:20px;
+	border-bottom:1px solid #eee;
+	color: #e47911;
+}
+.main h2 {
+	font-size:22px;
+	font-weight:700;
+	padding:20px 0 20px 0;
+	color:#007697;
+}
+.main h3 {
+	font-size:20px;
+	font-weight:700;
+	padding:20px 0 20px 0;
+	color: #e47911;
+}
+.main h4 {
+	font-size:18px;
+	font-weight:700;
+	padding:0 0 20px 0;
+}
+.main h5 {
+	font-size:16px;
+	font-weight:600;
+	padding:0 0 20px 0;
+	color:#222;
+}
+.main h6 {
+	font-size:15px;
+	font-weight:600;
+	padding:0 0 20px 0;
+}
+.main p {
+	font-size:16px;
+	font-weight:400;
+	line-height: 1.5em;
+	padding:0 0 20px 0;
+}
+.main p strong {
+	font-size:14px;
+	font-weight:700;
+}
+.main ul {
+	padding:0px 0 20px 40px;
+	list-style-type:disc;
+}
+.main ul li {
+	padding:0 0 5px 10px;
+}
+.main ul li strong {
+	font-weight:700;
+	font-size:14px;
+	color:#333;
+}
+.main ul li ul {
+	list-style-type:circle;
+	padding:5px 0 0 0;
+	margin-left:40px;
+}
+.main ul li ul li ul {
+	list-style-type:square;
+}
+.left-pan ul {
+	list-style:none;
+	padding:0 0 0 20px;
+}
+.left-pan ul ul {
+	padding:7px 0 5px 20px;
+}
+.left-pan ul li {
+	font-size:14px;
+}
+.left-pan ul li.active a {
+	font-weight:bold;
+	color:#333;
+}
+.left-pan ul li.active li a {
+	font-weight:normal;
+	color:#0087cc;
+}
+.left-pan ul li.active li a:hover {
+	color:#e47911;
+}
+.left-pan ul li ul li {
+	margin-bottom: 10px;
+	padding:0 0 5px 0;
+	font-weight:normal;
+	font-size:14px;
+}
+.left-pan ul li.awstoc.opened::before {
+color: #e47911;
+content: "";
+font-family: "FontAwesome";
+margin: 0 5px 0 -15px;
+}
+.left-pan ul li.awstoc.leaf::before {
+color: #e47911;
+content: "";
+font-family: "FontAwesome";
+margin: 0 5px 0 -15px;
+}
+.main .comment {
+	font-size:14px;
+	margin-left:20px;
+	margin-top:20px;
+	border-top:1px solid #222;
+	padding-top:5px;
+}
+.main i {
+	font-weight:300;
+	font-style:italic;
+	font-size:14px;
+	line-height:20px;
+	color:#555;
+}
+.table {
+	border-color: #cccccc;
+	border-spacing: 0;
+	border-style: solid;
+	border-width: 1px;
+	border-collapse: collapse;
+	margin-top:20px;
+	margin-bottom:20px;
+}
+.table td {
+	border-color: #cccccc;
+	border-style: solid;
+	border-width: 1px;
+	font-size: 14px;
+	padding: 5px;
+	vertical-align: top;
+}
+.table th {
+	background-color: #eeeeee;
+	border-color: #cccccc;
+	border-style: solid;
+	border-width: 1px;
+	color: #333333;
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px;
+	text-align: left;
+	vertical-align: top;
+}
+.code {
+	font-style:italic;
+	font-size:15px;
+	font-weight:300;
+	color:#b6b6b6;
+}
+.codeqoute {
+	background:#f0f0f0;
+	font-size:14px;
+	padding:10px 1.5%;
+	margin:0px 0 20px;
+	color:#333;
+	border:1px solid #e1e1e8;
+	border-radius:3px;
+	display:inline-block;
+	width:96%;
+	word-wrap: break-word;
+	font-weight:300;
+	line-height:20px;
+}
+.highlight {
+	color:#000;
+	background-color:#fff697;
+	padding:2px 5px;
+}
